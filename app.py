@@ -1,5 +1,6 @@
 from config import ADMIN_ID
 from loader import bot, dp, storage
+from middleware import ControlUpdate
 
 
 async def on_shutdown(dp):
@@ -13,6 +14,8 @@ async def on_startap(dp):
 
 if __name__ == "__main__":
     from aiogram import executor
+
+    dp.middleware.setup(ControlUpdate())
 
     from handlers import dp
 

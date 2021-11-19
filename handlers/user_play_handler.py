@@ -1,5 +1,8 @@
+from datetime import datetime
+
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from database_schemes import GameLogClass
 from keyboards.main_keyboards import choose_mode_keyboard, stop_game_keyboard
 from loader import bot, dp
 from states import paying_person
@@ -10,7 +13,8 @@ async def start_work(message: types.Message, state: FSMContext):
     data = await state.get_data()
 
     number = data.get("number")
-    attempts_num = data.get("attempts")
+
+    game_log = GameLogClass.objects(pk=data.get("game_log_id"))
 
     if data.get("previous_keyboard_id"):
         await bot.edit_message_reply_markup(
@@ -22,8 +26,11 @@ async def start_work(message: types.Message, state: FSMContext):
 
     if message.text.isdigit():
         answer = int(message.text)
-        if not attempts_num:
-            attempts_num = 1
+        game_log.update_one(
+            attempts_num=game_log[0].attempts_num + 1,
+        )
+
+        attempts_num = game_log[0].attempts_num
 
         if answer > number:
             await message.answer(
@@ -46,6 +53,10 @@ async def start_work(message: types.Message, state: FSMContext):
                 text=f"You have guessed the number!\nAttempts: {attempts_num}\nTo start a new game choose mode:",
                 reply_markup=choose_mode_keyboard,
             )
+            game_log.update_one(
+                game_finish_date=datetime.now(), is_finished_correctly=True
+            )
+
             await state.update_data(number=None)
             await state.finish()
         await state.update_data(attempts=attempts_num + 1)

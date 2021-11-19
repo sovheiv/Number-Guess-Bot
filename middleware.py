@@ -1,11 +1,9 @@
-from datetime import datetime
-
-import mongoengine
-from aiogram import types
-from aiogram.dispatcher.handler import CancelHandler
 from aiogram.dispatcher.middlewares import BaseMiddleware
-
+from aiogram.dispatcher.handler import CancelHandler
+from aiogram import types
 from database_schemes import UsersClass
+from datetime import datetime
+import mongoengine
 
 
 class ControlUpdate(BaseMiddleware):
@@ -52,8 +50,8 @@ class ControlUpdate(BaseMiddleware):
                 )
                 check_user_ban(user[0])
 
-
 def check_user_ban(user: dict):
     if user["is_banned"] == True:
         print("banned user tried to write")
         raise CancelHandler()
+
