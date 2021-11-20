@@ -9,7 +9,7 @@ from config import MAX_LIMIT, MIN_LIMIT
 from database_schemes import GameLogClass
 from keyboards.main_keyboards import choose_answer_keyboard, choose_mode_keyboard
 from loader import dp
-from states import paying_person
+from states import playing_person
 
 
 @dp.callback_query_handler(text="user_play")
@@ -31,7 +31,7 @@ async def generate_number(call: CallbackQuery, state: FSMContext):
 
     await state.update_data(game_log_id=game_log.pk)
     await state.update_data(number=rand_number)
-    await paying_person.user_is_paying.set()
+    await playing_person.user_is_paying.set()
 
 
 @dp.callback_query_handler(text="bot_play")
@@ -56,7 +56,7 @@ async def generate_number(call: CallbackData, state: FSMContext):
     await state.update_data(attempt=None)
     await state.update_data(max_limit=MAX_LIMIT + 1)
     await state.update_data(min_limit=MIN_LIMIT - 1)
-    await paying_person.bot_is_paying.set()
+    await playing_person.bot_is_paying.set()
 
     data = await state.get_data()
 

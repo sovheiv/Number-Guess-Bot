@@ -8,8 +8,8 @@ async def on_shutdown(dp):
     await storage.close()
 
 
-async def on_startap(dp):
-    await bot.send_message(chat_id=ADMIN_ID, text="bot started, /start")
+async def on_startup(dp):
+    await bot.send_message(chat_id=ADMIN_ID, text="Raspberry has been started")
 
 
 if __name__ == "__main__":
@@ -19,4 +19,4 @@ if __name__ == "__main__":
 
     from handlers import dp
 
-    executor.start_polling(dp, on_startup=on_startap, on_shutdown=on_shutdown)
+    executor.start_polling(dp, on_startup=on_startup, on_shutdown=on_shutdown)

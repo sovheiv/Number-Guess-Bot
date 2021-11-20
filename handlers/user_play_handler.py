@@ -5,10 +5,10 @@ from aiogram.dispatcher import FSMContext
 from database_schemes import GameLogClass
 from keyboards.main_keyboards import choose_mode_keyboard, stop_game_keyboard
 from loader import bot, dp
-from states import paying_person
+from states import playing_person
 
 
-@dp.message_handler(state=paying_person.user_is_paying)
+@dp.message_handler(state=playing_person.user_is_paying)
 async def start_work(message: types.Message, state: FSMContext):
     data = await state.get_data()
 

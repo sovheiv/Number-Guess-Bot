@@ -7,10 +7,10 @@ from config import MAX_LIMIT, MIN_LIMIT
 from database_schemes import GameLogClass
 from keyboards.main_keyboards import choose_answer_keyboard, choose_mode_keyboard, stop_game_keyboard
 from loader import bot, dp
-from states import paying_person
+from states import playing_person
 
 
-@dp.callback_query_handler(state=paying_person.bot_is_paying)
+@dp.callback_query_handler(state=playing_person.bot_is_paying)
 async def start_work(call: CallbackQuery, state: FSMContext):
     print(call.data)
 
@@ -61,7 +61,7 @@ async def start_work(call: CallbackQuery, state: FSMContext):
             min_limit = MIN_LIMIT if min_limit == MIN_LIMIT - 1 else min_limit
             game_log.update_one(
                 game_finish_date=datetime.now(),
-                is_finished_correctly=True,
+                is_finished_correctly=False,
             )
             await call.message.answer(
                 text=f"Your data is incorrect\nnumber can`t be higher than {min_limit} and lower than {max_limit}\nTo start a new game choose mode",
@@ -78,7 +78,7 @@ async def start_work(call: CallbackQuery, state: FSMContext):
             )
 
 
-@dp.message_handler(state=paying_person.bot_is_paying)
+@dp.message_handler(state=playing_person.bot_is_paying)
 async def start_work(message: Message, state: FSMContext):
 
     data = await state.get_data()
