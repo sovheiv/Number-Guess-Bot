@@ -79,7 +79,7 @@ async def start_work(message: types.Message, state: FSMContext):
         attempt = data.get("attempt")
         await message.answer(
             text=(
-                "In this mode you should think of a number and bot will guess it within 7 tries\n"
+                "In this mode you should think of a number and bot will guess it within 7 tries\n\n"
                 f"<b>Press buttons above</b> to set is your number higher or lower than {attempt}. Or is it {attempt}?"
             ),
         )
@@ -90,8 +90,8 @@ async def start_work(message: types.Message, state: FSMContext):
 
         await message.answer(
             text=(
-                "Now you haven't any active games.\nTo start a new game choose mode:\n"
-                "• <b>User play</b> – is the mode in which bot think of a number and you can guess it\n"
+                "Now you haven't any active games.\nTo start a new game choose mode:\n\n"
+                "• <b>User play</b> – is the mode in which bot think of a number and you can guess it\n\n"
                 "• <b>Bot play</b> – is the mode in which you can think of a number. After that  bot will guess it within 7 tries"
             ),
             reply_markup=choose_mode_keyboard,
