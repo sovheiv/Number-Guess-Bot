@@ -56,6 +56,7 @@ async def start_work(message: types.Message, state: FSMContext):
             game_log.update_one(
                 game_finish_date=datetime.now(), is_finished_correctly=True
             )
+            await state.update_data(previous_keyboard_id=message.message_id + 1)
 
             await state.update_data(number=None)
             await state.finish()

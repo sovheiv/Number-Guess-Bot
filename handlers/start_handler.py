@@ -17,6 +17,9 @@ async def generate_number(call: CallbackQuery, state: FSMContext):
     await call.message.edit_text(
         text=f"mode: user play\nBot thought the number from {MIN_LIMIT} to {MAX_LIMIT}\nGuess it"
     )
+
+    await state.update_data(previous_keyboard_id=None)
+
     await call.answer("generated")
     rand_number = random.randrange(MAX_LIMIT)
 
@@ -37,7 +40,9 @@ async def generate_number(call: CallbackQuery, state: FSMContext):
 
 @dp.callback_query_handler(text="bot_play")
 async def generate_number(call: CallbackData, state: FSMContext):
+
     await call.message.edit_text(text="mode: bot play")
+    await state.update_data(previous_keyboard_id=None)
 
     await call.answer("guess your number")
     await call.message.answer(
@@ -114,6 +119,8 @@ async def stop_game(message, state: FSMContext):
         text="Stoped.\nTo start a new game choose mode:",
         reply_markup=choose_mode_keyboard,
     )
+    await state.update_data(previous_keyboard_id=message.message_id + 1)
+
     data = await state.get_data()
     game_log = GameLogClass.objects(pk=data.get("game_log_id"))
     game_log.update_one(game_finish_date=datetime.now(), is_finished_correctly=False)

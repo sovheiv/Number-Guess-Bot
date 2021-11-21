@@ -9,6 +9,7 @@ from handlers.start_handler import delete_keyboard
 async def start_work(message: types.Message, state: FSMContext):
 
     await delete_keyboard(await state.get_data(), message.from_user.id)
+    await state.update_data(previous_keyboard_id=message.message_id + 1)
 
     await message.answer(
         text=(
@@ -26,7 +27,9 @@ async def start_work(message: types.Message, state: FSMContext):
 async def start_work(message: types.Message, state: FSMContext):
 
     await delete_keyboard(await state.get_data(), message.from_user.id)
+    await state.update_data(previous_keyboard_id=message.message_id + 1)
 
     await message.answer(
         text="To start a new game choose mode:", reply_markup=choose_mode_keyboard
     )
+

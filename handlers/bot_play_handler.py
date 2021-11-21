@@ -29,6 +29,8 @@ async def start_work(call: CallbackQuery, state: FSMContext):
             text=f"Right: {previous_attempt}\nTo start a new game choose mode",
             reply_markup=choose_mode_keyboard,
         )
+        await state.update_data(previous_keyboard_id=call.message.message_id + 1)
+
         game_log.update_one(
             guessed_num=previous_attempt,
             game_finish_date=datetime.now(),
@@ -63,6 +65,8 @@ async def start_work(call: CallbackQuery, state: FSMContext):
                 text=f"Your data is incorrect\nnumber can't be higher than {min_limit} and lower than {max_limit}\nTo start a new game choose mode",
                 reply_markup=choose_mode_keyboard,
             )
+            await state.update_data(previous_keyboard_id=call.message.message_id + 1)
+
             await state.finish()
         else:
             game_log.update_one(
