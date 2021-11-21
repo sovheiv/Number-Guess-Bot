@@ -8,7 +8,7 @@ from aiogram.utils.callback_data import CallbackData
 from config import MAX_LIMIT, MIN_LIMIT
 from database_schemes import GameLogClass
 from keyboards.main_keyboards import choose_answer_keyboard, choose_mode_keyboard
-from loader import dp
+from loader import bot, dp
 from states import playing_person
 
 
@@ -26,6 +26,7 @@ async def generate_number(call: CallbackQuery, state: FSMContext):
         game_type=call.data,
         guessed_num=rand_number,
         attempts_num=0,
+        game_start_date=datetime.now(),
     )
     game_log.save()
 
@@ -40,7 +41,7 @@ async def generate_number(call: CallbackData, state: FSMContext):
 
     await call.answer("guess your number")
     await call.message.answer(
-        text=f"Think of a number from {MIN_LIMIT} to {MAX_LIMIT}\nand remember it.\nBot will guess your number within 7 tries"
+        text=f"Think of a number from {MIN_LIMIT} to {MAX_LIMIT}.\nBot will guess your number within 7 tries"
     )
 
     game_log = GameLogClass(
@@ -48,6 +49,7 @@ async def generate_number(call: CallbackData, state: FSMContext):
         username=call.from_user.username,
         game_type=call.data,
         attempts_num=0,
+        game_start_date=datetime.now(),
     )
     game_log.save()
 
@@ -63,6 +65,37 @@ async def generate_number(call: CallbackData, state: FSMContext):
     attempt = (data.get("min_limit") + data.get("max_limit")) // 2
     await state.update_data(attempt=attempt)
     await call.message.answer(text=str(attempt), reply_markup=choose_answer_keyboard)
+
+
+@dp.message_handler(commands="info_about_current_mode", state="*")
+async def start_work(message: types.Message, state: FSMContext):
+    current_state = await state.get_state()
+    if current_state == "playing_person:user_is_paying":
+        await message.answer(
+            text="In this mode you should try to guess the number wich this bot though of\nWrite the bot some number, for example, 50",
+        )
+    elif current_state == "playing_person:bot_is_paying":
+        data = await state.get_data()
+        attempt = data.get("attempt")
+        await message.answer(
+            text=(
+                "In this mode you should think of a number and bot will guess it within 7 tries\n"
+                f"<b>Press buttons above</b> to set is your number higher or lower than {attempt}. Or is it {attempt}?"
+            ),
+        )
+    elif not current_state:
+
+        await delete_keyboard(await state.get_data(), message.from_user.id)
+        await state.update_data(previous_keyboard_id=message.message_id + 1)
+
+        await message.answer(
+            text=(
+                "Now you haven't any active games.\nTo start a new game choose mode:\n"
+                "• <b>User play</b> – is the mode in which bot think of a number and you can guess it\n"
+                "• <b>Bot play</b> – is the mode in which you can think of a number. After that  bot will guess it within 7 tries"
+            ),
+            reply_markup=choose_mode_keyboard,
+        )
 
 
 @dp.message_handler(state="*", commands="stop_game")
@@ -85,3 +118,12 @@ async def stop_game(message, state: FSMContext):
     game_log = GameLogClass.objects(pk=data.get("game_log_id"))
     game_log.update_one(game_finish_date=datetime.now(), is_finished_correctly=False)
     await state.finish()
+
+
+async def delete_keyboard(data, chat_id):
+    if data.get("previous_keyboard_id"):
+        await bot.edit_message_reply_markup(
+            chat_id=chat_id,
+            message_id=data.get("previous_keyboard_id"),
+            reply_markup=None,
+        )

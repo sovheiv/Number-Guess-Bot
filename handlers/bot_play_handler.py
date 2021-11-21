@@ -6,13 +6,14 @@ from aiogram.types.callback_query import CallbackQuery
 from config import MAX_LIMIT, MIN_LIMIT
 from database_schemes import GameLogClass
 from keyboards.main_keyboards import choose_answer_keyboard, choose_mode_keyboard, stop_game_keyboard
-from loader import bot, dp
+from loader import dp
 from states import playing_person
+
+from handlers.start_handler import delete_keyboard
 
 
 @dp.callback_query_handler(state=playing_person.bot_is_paying)
 async def start_work(call: CallbackQuery, state: FSMContext):
-    print(call.data)
 
     data = await state.get_data()
     min_limit = data.get("min_limit")
@@ -20,12 +21,7 @@ async def start_work(call: CallbackQuery, state: FSMContext):
     previous_attempt = data.get("attempt")
     game_log = GameLogClass.objects(pk=data.get("game_log_id"))
 
-    if data.get("previous_keyboard_id"):
-        await bot.edit_message_reply_markup(
-            chat_id=call.from_user.id,
-            message_id=data.get("previous_keyboard_id"),
-            reply_markup=None,
-        )
+    await delete_keyboard(await state.get_data(), call.from_user.id)
     await state.update_data(previous_keyboard_id=None)
 
     if call.data == "right":
@@ -64,7 +60,7 @@ async def start_work(call: CallbackQuery, state: FSMContext):
                 is_finished_correctly=False,
             )
             await call.message.answer(
-                text=f"Your data is incorrect\nnumber can`t be higher than {min_limit} and lower than {max_limit}\nTo start a new game choose mode",
+                text=f"Your data is incorrect\nnumber can't be higher than {min_limit} and lower than {max_limit}\nTo start a new game choose mode",
                 reply_markup=choose_mode_keyboard,
             )
             await state.finish()
@@ -81,17 +77,10 @@ async def start_work(call: CallbackQuery, state: FSMContext):
 @dp.message_handler(state=playing_person.bot_is_paying)
 async def start_work(message: Message, state: FSMContext):
 
-    data = await state.get_data()
+    await delete_keyboard(await state.get_data(), message.from_user.id)
+    await state.update_data(previous_keyboard_id=message.message_id + 1)
 
-    if data.get("previous_keyboard_id"):
-        await bot.edit_message_reply_markup(
-            chat_id=message.from_user.id,
-            message_id=data.get("previous_keyboard_id"),
-            reply_markup=None,
-        )
-        
     await message.answer(
         text="Use buttons above\nor you can stop this game",
         reply_markup=stop_game_keyboard,
     )
-    await state.update_data(previous_keyboard_id=message.message_id + 1)

@@ -3,8 +3,8 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 choose_mode_keyboard = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="user play", callback_data="user_play"),
-            InlineKeyboardButton(text="bot play", callback_data="bot_play"),
+            InlineKeyboardButton(text="User play", callback_data="user_play"),
+            InlineKeyboardButton(text="Bot play", callback_data="bot_play"),
         ]
     ]
 )

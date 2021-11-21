@@ -34,7 +34,7 @@ async def start_work(message: types.Message, state: FSMContext):
 
         if answer > number:
             await message.answer(
-                text="Number is lower than "
+                text="Bot's number is lower than "
                 + str(message.text)
                 + "\nAttempts: "
                 + str(attempts_num)
@@ -42,7 +42,7 @@ async def start_work(message: types.Message, state: FSMContext):
 
         elif answer < number:
             await message.answer(
-                text="Number is higher than "
+                text="Bot's number is higher than "
                 + str(message.text)
                 + "\nAttempts: "
                 + str(attempts_num)
