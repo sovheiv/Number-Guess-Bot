@@ -4,7 +4,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types import Message
 from aiogram.types.callback_query import CallbackQuery
 from config import MAX_LIMIT, MIN_LIMIT
-from database_schemes import GameLogClass
+from database_schemes import GameLogCollection
 from keyboards.main_keyboards import choose_answer_keyboard, choose_mode_keyboard, stop_game_keyboard
 from loader import dp
 from states import playing_person
@@ -19,7 +19,7 @@ async def start_work(call: CallbackQuery, state: FSMContext):
     min_limit = data.get("min_limit")
     max_limit = data.get("max_limit")
     previous_attempt = data.get("attempt")
-    game_log = GameLogClass.objects(pk=data.get("game_log_id"))
+    game_log = GameLogCollection.objects(pk=data.get("game_log_id"))
 
     await delete_keyboard(await state.get_data(), call.from_user.id)
     await state.update_data(previous_keyboard_id=None)

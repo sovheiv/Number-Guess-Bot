@@ -6,7 +6,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types.callback_query import CallbackQuery
 from aiogram.utils.callback_data import CallbackData
 from config import MAX_LIMIT, MIN_LIMIT
-from database_schemes import GameLogClass
+from database_schemes import GameLogCollection
 from keyboards.main_keyboards import choose_answer_keyboard, choose_mode_keyboard
 from loader import bot, dp
 from states import playing_person
@@ -23,12 +23,11 @@ async def generate_number(call: CallbackQuery, state: FSMContext):
     await call.answer("generated")
     rand_number = random.randrange(MAX_LIMIT)
 
-    game_log = GameLogClass(
+    game_log = GameLogCollection(
         user_id=call.from_user.id,
         username=call.from_user.username,
         game_type=call.data,
         guessed_num=rand_number,
-        attempts_num=0,
         game_start_date=datetime.now(),
     )
     game_log.save()
@@ -49,25 +48,21 @@ async def generate_number(call: CallbackData, state: FSMContext):
         text=f"Think of a number from {MIN_LIMIT} to {MAX_LIMIT}.\nBot will guess your number within 7 tries"
     )
 
-    game_log = GameLogClass(
+    game_log = GameLogCollection(
         user_id=call.from_user.id,
         username=call.from_user.username,
         game_type=call.data,
-        attempts_num=0,
         game_start_date=datetime.now(),
     )
     game_log.save()
 
     await state.update_data(game_log_id=game_log.pk)
 
-    await state.update_data(attempt=None)
     await state.update_data(max_limit=MAX_LIMIT + 1)
     await state.update_data(min_limit=MIN_LIMIT - 1)
     await playing_person.bot_is_paying.set()
 
-    data = await state.get_data()
-
-    attempt = (data.get("min_limit") + data.get("max_limit")) // 2
+    attempt = (MIN_LIMIT + MAX_LIMIT) // 2
     await state.update_data(attempt=attempt)
     await call.message.answer(text=str(attempt), reply_markup=choose_answer_keyboard)
 
@@ -122,7 +117,7 @@ async def stop_game(message, state: FSMContext):
     await state.update_data(previous_keyboard_id=message.message_id + 1)
 
     data = await state.get_data()
-    game_log = GameLogClass.objects(pk=data.get("game_log_id"))
+    game_log = GameLogCollection.objects(pk=data.get("game_log_id"))
     game_log.update_one(game_finish_date=datetime.now(), is_finished_correctly=False)
     await state.finish()
 

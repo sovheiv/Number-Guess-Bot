@@ -6,7 +6,7 @@ from mongoengine import fields
 mongoengine.connect(db="guess-the-number-bot-database", host="127.0.0.1", port=27017)
 
 
-class UsersClass(mongoengine.Document):
+class UsersCollection(mongoengine.Document):
     user_id = fields.IntField(unique=True)
     first_name = fields.StringField()
     username = fields.StringField()
@@ -17,12 +17,12 @@ class UsersClass(mongoengine.Document):
     is_banned = fields.BooleanField(default=False)
 
 
-class GameLogClass(mongoengine.Document):
+class GameLogCollection(mongoengine.Document):
     user_id = fields.IntField()
     username = fields.StringField()
     game_type = fields.StringField()
     guessed_num = fields.IntField()
-    attempts_num = fields.IntField()
+    attempts_num = fields.IntField(default=0)
     game_start_date = fields.DateTimeField(default=datetime.now())
     game_finish_date = fields.DateTimeField()
     is_finished_correctly = fields.BooleanField()
