@@ -5,7 +5,12 @@ from aiogram.types import Message
 from aiogram.types.callback_query import CallbackQuery
 from config import MAX_LIMIT, MIN_LIMIT
 from database_schemes import GameLogCollection
-from keyboards.main_keyboards import choose_answer_keyboard, choose_mode_keyboard, stop_game_keyboard
+from initialize_logger import keyboard_logger
+from keyboards.main_keyboards import (
+    create_choose_answer_keyboard,
+    create_choose_answer_and_stop_keyboard,
+    choose_mode_keyboard,
+)
 from loader import dp
 from states import playing_person
 
@@ -13,7 +18,7 @@ from handlers.start_handler import delete_keyboard
 
 
 @dp.callback_query_handler(state=playing_person.bot_is_paying)
-async def start_work(call: CallbackQuery, state: FSMContext):
+async def proces_bot_play(call: CallbackQuery, state: FSMContext):
 
     data = await state.get_data()
     min_limit = data.get("min_limit")
@@ -21,15 +26,11 @@ async def start_work(call: CallbackQuery, state: FSMContext):
     previous_attempt = data.get("attempt")
     game_log = GameLogCollection.objects(pk=data.get("game_log_id"))
 
-    await delete_keyboard(await state.get_data(), call.from_user.id)
-    await state.update_data(previous_keyboard_id=None)
-
     if call.data == "right":
         await call.message.edit_text(
             text=f"Right: {previous_attempt}\nTo start a new game choose mode",
             reply_markup=choose_mode_keyboard,
         )
-        await state.update_data(previous_keyboard_id=call.message.message_id + 1)
 
         game_log.update_one(
             guessed_num=previous_attempt,
@@ -40,9 +41,7 @@ async def start_work(call: CallbackQuery, state: FSMContext):
         await state.finish()
 
     else:
-        await call.message.edit_text(
-            text=f"My number is {call.data} than {previous_attempt}"
-        )
+        await call.message.edit_text(text=f"Your number is {call.data} than {previous_attempt}")
         if call.data == "higher":
             new_attempt = (previous_attempt + max_limit) // 2
             await state.update_data(min_limit=previous_attempt)
@@ -65,26 +64,31 @@ async def start_work(call: CallbackQuery, state: FSMContext):
                 text=f"Your data is incorrect\nnumber can't be higher than {min_limit} and lower than {max_limit}\nTo start a new game choose mode",
                 reply_markup=choose_mode_keyboard,
             )
-            await state.update_data(previous_keyboard_id=call.message.message_id + 1)
-
             await state.finish()
+
         else:
             game_log.update_one(
                 attempts_num=game_log[0].attempts_num + 1,
             )
 
             await call.message.answer(
-                text=str(new_attempt), reply_markup=choose_answer_keyboard
+                text=f"Is your number {new_attempt}?", reply_markup=await create_choose_answer_keyboard(new_attempt)
             )
+
+    await state.update_data(previous_keyboard_id=call.message.message_id + 1)
+    keyboard_logger.debug(f"{call.from_user.id} Edited without keyboard: {data.get('previous_keyboard_id')}")
+    keyboard_logger.debug(f"{call.from_user.id} Created: {call.message.message_id + 1}")
 
 
 @dp.message_handler(state=playing_person.bot_is_paying)
-async def start_work(message: Message, state: FSMContext):
+async def proces_bot_play_message(message: Message, state: FSMContext):
 
     await delete_keyboard(await state.get_data(), message.from_user.id)
-    await state.update_data(previous_keyboard_id=message.message_id + 1)
-
+    data = await state.get_data()
     await message.answer(
-        text="Use buttons above\nor you can stop this game",
-        reply_markup=stop_game_keyboard,
+        text="Use buttons below\nor you can stop this game",
+        reply_markup=await create_choose_answer_and_stop_keyboard(data.get("attempt")),
     )
+
+    await state.update_data(previous_keyboard_id=message.message_id + 1)
+    keyboard_logger.debug(f"{message.from_user.id} Created: {message.message_id + 1}")

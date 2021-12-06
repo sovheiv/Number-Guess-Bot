@@ -13,6 +13,7 @@ async def on_startup(dp):
 
 
 if __name__ == "__main__":
+
     from aiogram import executor
 
     dp.middleware.setup(ControlUpdate())
