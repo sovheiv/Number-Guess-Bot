@@ -3,7 +3,7 @@ from datetime import datetime
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from database_schemes import GameLogCollection
-from initialize_logger import keyboard_logger
+from loader import keyboard_logger
 from keyboards.main_keyboards import choose_mode_keyboard, stop_game_keyboard
 from loader import dp
 from states import playing_person

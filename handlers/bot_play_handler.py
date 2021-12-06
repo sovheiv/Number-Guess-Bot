@@ -5,7 +5,7 @@ from aiogram.types import Message
 from aiogram.types.callback_query import CallbackQuery
 from config import MAX_LIMIT, MIN_LIMIT
 from database_schemes import GameLogCollection
-from initialize_logger import keyboard_logger
+from loader import keyboard_logger
 from keyboards.main_keyboards import (
     create_choose_answer_keyboard,
     create_choose_answer_and_stop_keyboard,

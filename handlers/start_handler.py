@@ -8,7 +8,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.types.callback_query import CallbackQuery
 from config import MAX_LIMIT, MIN_LIMIT
 from database_schemes import GameLogCollection
-from initialize_logger import keyboard_logger
+from loader import keyboard_logger
 from keyboards.main_keyboards import choose_mode_keyboard, create_choose_answer_keyboard
 from loader import bot, dp
 from states import playing_person

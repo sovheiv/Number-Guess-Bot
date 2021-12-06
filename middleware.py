@@ -6,7 +6,7 @@ from aiogram.dispatcher.handler import CancelHandler
 from aiogram.dispatcher.middlewares import BaseMiddleware
 
 from database_schemes import UsersCollection
-from initialize_logger import update_logger
+from loader import update_logger
 
 
 class ControlUpdate(BaseMiddleware):
@@ -17,14 +17,14 @@ class ControlUpdate(BaseMiddleware):
             check_user_data(update.callback_query)
 
             update_logger.debug(
-                f"[callback] from: {update.callback_query.from_user.username}, message_id: {update.callback_query.message.message_id}, data: {update.callback_query.data}"
+                f"[callback] from: {update.callback_query.from_user.username} {update.callback_query.from_user.id}, message_id: {update.callback_query.message.message_id}, data: {update.callback_query.data}"
             )
 
         elif update.message:
             check_user_data(update.message)
 
             update_logger.debug(
-                f"[message] from: {update.message.from_user.username}, message_id: {update.message.message_id}, text: {update.message.text}"
+                f"[message] from: {update.message.from_user.username} {update.message.from_user.id}, message_id: {update.message.message_id}, text: {update.message.text}"
             )
 
 

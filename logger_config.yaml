@@ -1,0 +1,66 @@
+---
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  update_logger_formatter:
+    format: "[{asctime}] {message}"
+    style: "{"
+
+  keyboard_logger_formatter:
+    format: "[{asctime}] [{filename} - {funcName} - {lineno}] {message}"
+    style: "{"
+
+  aiogram_logger_formatter:
+    format: "{filename} [LINE:{lineno}] #{levelname} [{asctime}]  {message}"
+    style: "{"
+
+handlers:
+  update_logger_file_handler:
+    class: logging.FileHandler
+    filename: logs/update.log
+    encoding: UTF-8
+    level: DEBUG
+    formatter: update_logger_formatter
+
+  keyboard_logger_file_handler:
+    class: logging.FileHandler
+    filename: logs/keyboard.log
+    level: DEBUG
+    formatter: keyboard_logger_formatter
+
+  keyboard_logger_console_handler:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: keyboard_logger_formatter
+
+  aiogram_logger_file_handler:
+    class: logging.FileHandler
+    filename: logs/aiogram.log
+    level: DEBUG
+    formatter: aiogram_logger_formatter
+
+  aiogram_logger_console_handler:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: aiogram_logger_formatter
+
+loggers:
+  update_logger:
+    level: DEBUG
+    handlers:
+    - update_logger_file_handler
+    propagate: false
+
+  keyboard_logger:
+    level: WARNING #set DEBUG to turn on
+    handlers:
+    - keyboard_logger_file_handler
+    - keyboard_logger_console_handler
+    propagate: false
+    
+  aiogram:
+    level: INFO
+    handlers:
+    - aiogram_logger_file_handler
+    - aiogram_logger_console_handler

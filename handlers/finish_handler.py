@@ -1,6 +1,6 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from initialize_logger import keyboard_logger
+from loader import keyboard_logger
 from keyboards.main_keyboards import choose_mode_keyboard
 from loader import dp
 
