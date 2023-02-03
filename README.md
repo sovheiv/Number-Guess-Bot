@@ -2,7 +2,7 @@
 ### Telegram bot
 This is a telegram bot for the game Guess the number. 
 
-This bot is running on ubuntu server on my Raspberry Pi so you can test it right now!
+This bot was running on ubuntu server on my Raspberry Pi.
 
 Try it:
 - Link: https://t.me/guess_a_number_bot
